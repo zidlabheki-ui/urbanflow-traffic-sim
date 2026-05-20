@@ -18,6 +18,23 @@ app.title("UrbanFlow — Traffic Flow Modelling System")
 app.geometry("1280x780")
 app.resizable(True, True)
 
+# ─── VEHICLE CLASSES (Zimbabwe VED / MoT Classification) ──
+VEHICLE_CLASSES = {
+    "Motorcycle":  {"color": "#F0A500", "width": 14, "height": 8,  "max_speed_factor": 1.2, "label": "M"},
+    "Light Motor": {"color": "#185FA5", "width": 26, "height": 13, "max_speed_factor": 1.0, "label": "L"},
+    "Minibus":     {"color": "#0F6E56", "width": 36, "height": 14, "max_speed_factor": 0.8, "label": "MB"},
+    "Bus":         {"color": "#7F77DD", "width": 50, "height": 15, "max_speed_factor": 0.6, "label": "B"},
+    "HGV":         {"color": "#A32D2D", "width": 58, "height": 15, "max_speed_factor": 0.5, "label": "HGV"},
+}
+
+VEHICLE_DISTRIBUTION = {
+    "Motorcycle":  0.10,
+    "Light Motor": 0.55,
+    "Minibus":     0.20,
+    "Bus":         0.08,
+    "HGV":         0.07,
+}
+
 # ─── HEADER ───────────────────────────────────────────────
 header = ctk.CTkFrame(app, fg_color="#185FA5", height=60, corner_radius=0)
 header.pack(fill="x", side="top")
@@ -41,10 +58,10 @@ sidebar_outer.pack_propagate(False)
 sidebar = ctk.CTkScrollableFrame(sidebar_outer, fg_color="white", width=250)
 sidebar.pack(fill="both", expand=True)
 
-# ── Section: City ──
+# ── Step 1: City ──
 ctk.CTkLabel(sidebar, text="STEP 1 — SELECT CITY",
              font=ctk.CTkFont(size=11, weight="bold"),
-             text_color="#185FA5").pack(anchor="w", padx=16, pady=(16, 6))
+             text_color="#185FA5").pack(anchor="w", padx=16, pady=(16,6))
 
 ctk.CTkLabel(sidebar, text="City / Metro Council",
              font=ctk.CTkFont(size=12),
@@ -53,26 +70,26 @@ city_entry = ctk.CTkEntry(sidebar,
                            placeholder_text="e.g. Bulawayo, Zimbabwe",
                            fg_color="#EFF6FF", border_color="#B5D4F4",
                            width=230)
-city_entry.pack(padx=16, pady=(2, 8))
+city_entry.pack(padx=16, pady=(2,8))
 
 load_city_button = ctk.CTkButton(sidebar, text="Search City Roads",
                                   fg_color="#185FA5", hover_color="#0C447C",
                                   font=ctk.CTkFont(size=12, weight="bold"),
                                   height=36, width=230, corner_radius=8)
-load_city_button.pack(padx=16, pady=(0, 6))
+load_city_button.pack(padx=16, pady=(0,6))
 
 city_status_label = ctk.CTkLabel(sidebar, text="Enter a city to begin",
                                   font=ctk.CTkFont(size=10),
                                   text_color="#888")
-city_status_label.pack(padx=16, pady=(0, 10))
+city_status_label.pack(padx=16, pady=(0,10))
 
-# ── Section: Road Selection ──
 ctk.CTkFrame(sidebar, fg_color="#B5D4F4", height=1).pack(
-    fill="x", padx=16, pady=(0, 10))
+    fill="x", padx=16, pady=(0,10))
 
+# ── Step 2: Road ──
 ctk.CTkLabel(sidebar, text="STEP 2 — SELECT ROAD",
              font=ctk.CTkFont(size=11, weight="bold"),
-             text_color="#185FA5").pack(anchor="w", padx=16, pady=(0, 6))
+             text_color="#185FA5").pack(anchor="w", padx=16, pady=(0,6))
 
 ctk.CTkLabel(sidebar, text="Search Road Name",
              font=ctk.CTkFont(size=12),
@@ -81,7 +98,7 @@ road_search_entry = ctk.CTkEntry(sidebar,
                                   placeholder_text="e.g. Joshua Nkomo",
                                   fg_color="#EFF6FF", border_color="#B5D4F4",
                                   width=230)
-road_search_entry.pack(padx=16, pady=(2, 8))
+road_search_entry.pack(padx=16, pady=(2,8))
 
 ctk.CTkLabel(sidebar, text="Select Road",
              font=ctk.CTkFont(size=12),
@@ -91,38 +108,38 @@ road_dropdown = ctk.CTkOptionMenu(sidebar, values=["Load city first"],
                                    variable=road_var,
                                    fg_color="#185FA5", width=230,
                                    dynamic_resizing=False)
-road_dropdown.pack(padx=16, pady=(2, 8))
+road_dropdown.pack(padx=16, pady=(2,8))
 road_dropdown.configure(state="disabled")
 
 load_road_button = ctk.CTkButton(sidebar, text="Load Selected Road",
                                   fg_color="#0C447C", hover_color="#042C53",
                                   font=ctk.CTkFont(size=12),
                                   height=36, width=230, corner_radius=8)
-load_road_button.pack(padx=16, pady=(0, 6))
+load_road_button.pack(padx=16, pady=(0,6))
 load_road_button.configure(state="disabled")
 
 road_status_label = ctk.CTkLabel(sidebar, text="No road selected",
                                   font=ctk.CTkFont(size=10),
                                   text_color="#888")
-road_status_label.pack(padx=16, pady=(0, 10))
+road_status_label.pack(padx=16, pady=(0,10))
 
-# ── Section: Parameters ──
 ctk.CTkFrame(sidebar, fg_color="#B5D4F4", height=1).pack(
-    fill="x", padx=16, pady=(0, 10))
+    fill="x", padx=16, pady=(0,10))
 
+# ── Step 3: Parameters ──
 ctk.CTkLabel(sidebar, text="STEP 3 — SET PARAMETERS",
              font=ctk.CTkFont(size=11, weight="bold"),
-             text_color="#185FA5").pack(anchor="w", padx=16, pady=(0, 6))
+             text_color="#185FA5").pack(anchor="w", padx=16, pady=(0,6))
 
 ctk.CTkLabel(sidebar, text="Number of Lanes",
              font=ctk.CTkFont(size=12),
              text_color="#378ADD").pack(anchor="w", padx=16)
 lanes_var = ctk.StringVar(value="2")
 lanes_menu = ctk.CTkOptionMenu(sidebar,
-                                values=["1","2","3","4","5","6"],
+                                values=["2","4","6"],
                                 variable=lanes_var,
                                 fg_color="#185FA5", width=230)
-lanes_menu.pack(padx=16, pady=(2, 10))
+lanes_menu.pack(padx=16, pady=(2,10))
 
 ctk.CTkLabel(sidebar, text="Speed Limit (km/h)",
              font=ctk.CTkFont(size=12),
@@ -140,7 +157,7 @@ speed_slider = ctk.CTkSlider(sidebar, from_=20, to=120,
                               button_color="#185FA5",
                               progress_color="#378ADD", width=230)
 speed_slider.set(60)
-speed_slider.pack(padx=16, pady=(2, 10))
+speed_slider.pack(padx=16, pady=(2,10))
 
 ctk.CTkLabel(sidebar, text="Traffic Density (%)",
              font=ctk.CTkFont(size=12),
@@ -158,7 +175,7 @@ density_slider = ctk.CTkSlider(sidebar, from_=0, to=100,
                                 button_color="#185FA5",
                                 progress_color="#378ADD", width=230)
 density_slider.set(65)
-density_slider.pack(padx=16, pady=(2, 10))
+density_slider.pack(padx=16, pady=(2,10))
 
 ctk.CTkLabel(sidebar, text="Simulation Time (mins)",
              font=ctk.CTkFont(size=12),
@@ -176,35 +193,35 @@ time_slider = ctk.CTkSlider(sidebar, from_=5, to=120,
                              button_color="#185FA5",
                              progress_color="#378ADD", width=230)
 time_slider.set(30)
-time_slider.pack(padx=16, pady=(2, 16))
+time_slider.pack(padx=16, pady=(2,16))
 
-# ── Section: Actions ──
 ctk.CTkFrame(sidebar, fg_color="#B5D4F4", height=1).pack(
-    fill="x", padx=16, pady=(0, 10))
+    fill="x", padx=16, pady=(0,10))
 
+# ── Step 4: Run ──
 ctk.CTkLabel(sidebar, text="STEP 4 — RUN",
              font=ctk.CTkFont(size=11, weight="bold"),
-             text_color="#185FA5").pack(anchor="w", padx=16, pady=(0, 6))
+             text_color="#185FA5").pack(anchor="w", padx=16, pady=(0,6))
 
 run_button = ctk.CTkButton(sidebar, text="▶  Run Simulation",
                             fg_color="#185FA5", hover_color="#0C447C",
                             font=ctk.CTkFont(size=14, weight="bold"),
                             height=40, width=230, corner_radius=8)
-run_button.pack(padx=16, pady=(0, 8))
+run_button.pack(padx=16, pady=(0,8))
 
 stop_button = ctk.CTkButton(sidebar, text="⏹  Stop Simulation",
                              fg_color="#A32D2D", hover_color="#791F1F",
                              font=ctk.CTkFont(size=13),
                              height=36, width=230, corner_radius=8)
-stop_button.pack(padx=16, pady=(0, 10))
+stop_button.pack(padx=16, pady=(0,10))
 
 ctk.CTkFrame(sidebar, fg_color="#B5D4F4", height=1).pack(
-    fill="x", padx=16, pady=(0, 10))
+    fill="x", padx=16, pady=(0,10))
 
-# ── Section: Data ──
+# ── Data Import ──
 ctk.CTkLabel(sidebar, text="DATA IMPORT",
              font=ctk.CTkFont(size=11, weight="bold"),
-             text_color="#185FA5").pack(anchor="w", padx=16, pady=(0, 6))
+             text_color="#185FA5").pack(anchor="w", padx=16, pady=(0,6))
 
 upload_button = ctk.CTkButton(sidebar, text="+ Import CSV / Excel Data",
                                fg_color="white", text_color="#185FA5",
@@ -212,20 +229,20 @@ upload_button = ctk.CTkButton(sidebar, text="+ Import CSV / Excel Data",
                                border_color="#378ADD",
                                font=ctk.CTkFont(size=13),
                                height=36, width=230, corner_radius=8)
-upload_button.pack(padx=16, pady=(0, 4))
+upload_button.pack(padx=16, pady=(0,4))
 
 data_status_label = ctk.CTkLabel(sidebar, text="No data imported",
                                   font=ctk.CTkFont(size=10),
                                   text_color="#888")
-data_status_label.pack(padx=16, pady=(0, 10))
+data_status_label.pack(padx=16, pady=(0,10))
 
 ctk.CTkFrame(sidebar, fg_color="#B5D4F4", height=1).pack(
-    fill="x", padx=16, pady=(0, 10))
+    fill="x", padx=16, pady=(0,10))
 
-# ── Section: Export ──
+# ── Export ──
 ctk.CTkLabel(sidebar, text="EXPORT RESULTS",
              font=ctk.CTkFont(size=11, weight="bold"),
-             text_color="#185FA5").pack(anchor="w", padx=16, pady=(0, 6))
+             text_color="#185FA5").pack(anchor="w", padx=16, pady=(0,6))
 
 export_csv_button = ctk.CTkButton(sidebar, text="Export Data as CSV",
                                    fg_color="white", text_color="#185FA5",
@@ -233,7 +250,7 @@ export_csv_button = ctk.CTkButton(sidebar, text="Export Data as CSV",
                                    border_color="#378ADD",
                                    font=ctk.CTkFont(size=13),
                                    height=36, width=230, corner_radius=8)
-export_csv_button.pack(padx=16, pady=(0, 8))
+export_csv_button.pack(padx=16, pady=(0,8))
 
 export_pdf_button = ctk.CTkButton(sidebar, text="Export Report as PDF",
                                    fg_color="white", text_color="#185FA5",
@@ -241,7 +258,7 @@ export_pdf_button = ctk.CTkButton(sidebar, text="Export Report as PDF",
                                    border_color="#378ADD",
                                    font=ctk.CTkFont(size=13),
                                    height=36, width=230, corner_radius=8)
-export_pdf_button.pack(padx=16, pady=(0, 8))
+export_pdf_button.pack(padx=16, pady=(0,8))
 
 reset_button = ctk.CTkButton(sidebar, text="↺  Reset All",
                               fg_color="white", text_color="#378ADD",
@@ -249,7 +266,7 @@ reset_button = ctk.CTkButton(sidebar, text="↺  Reset All",
                               border_color="#378ADD",
                               font=ctk.CTkFont(size=13),
                               height=36, width=230, corner_radius=8)
-reset_button.pack(padx=16, pady=(0, 16))
+reset_button.pack(padx=16, pady=(0,16))
 
 # ─── CONTENT AREA ─────────────────────────────────────────
 content = ctk.CTkFrame(body, fg_color="#EFF6FF", corner_radius=0)
@@ -257,20 +274,20 @@ content.pack(fill="both", expand=True, padx=16, pady=16)
 
 # ─── METRIC CARDS ─────────────────────────────────────────
 metrics_frame = ctk.CTkFrame(content, fg_color="transparent")
-metrics_frame.pack(fill="x", pady=(0, 12))
+metrics_frame.pack(fill="x", pady=(0,8))
 
 def make_metric_card(parent, label, value, sub):
     card = ctk.CTkFrame(parent, fg_color="white", corner_radius=10,
                          border_width=1, border_color="#B5D4F4")
-    card.pack(side="left", expand=True, fill="x", padx=6)
+    card.pack(side="left", expand=True, fill="x", padx=4)
     ctk.CTkLabel(card, text=label, font=ctk.CTkFont(size=11),
-                 text_color="#378ADD").pack(anchor="w", padx=12, pady=(10,0))
+                 text_color="#378ADD").pack(anchor="w", padx=12, pady=(8,0))
     val_lbl = ctk.CTkLabel(card, text=value,
-                            font=ctk.CTkFont(size=22, weight="bold"),
+                            font=ctk.CTkFont(size=20, weight="bold"),
                             text_color="#042C53")
     val_lbl.pack(anchor="w", padx=12)
-    ctk.CTkLabel(card, text=sub, font=ctk.CTkFont(size=11),
-                 text_color="#888").pack(anchor="w", padx=12, pady=(0,10))
+    ctk.CTkLabel(card, text=sub, font=ctk.CTkFont(size=10),
+                 text_color="#888").pack(anchor="w", padx=12, pady=(0,8))
     return val_lbl
 
 avg_speed_label  = make_metric_card(metrics_frame, "Avg Speed",
@@ -282,11 +299,29 @@ congestion_label = make_metric_card(metrics_frame, "Congestion",
 jam_label        = make_metric_card(metrics_frame, "Jam Length",
                                      "-- km", "estimated queue")
 
-road_info_label  = ctk.CTkLabel(content,
-                                 text="No road selected — search a city and pick a road",
-                                 font=ctk.CTkFont(size=12),
-                                 text_color="#378ADD")
-road_info_label.pack(anchor="w", padx=6, pady=(0, 6))
+road_info_label = ctk.CTkLabel(content,
+                                text="No road selected — search a city and pick a road",
+                                font=ctk.CTkFont(size=11),
+                                text_color="#378ADD")
+road_info_label.pack(anchor="w", padx=6, pady=(0,6))
+
+# ─── VEHICLE CLASS LEGEND ─────────────────────────────────
+legend_outer = ctk.CTkFrame(content, fg_color="white", corner_radius=10,
+                              border_width=1, border_color="#B5D4F4")
+legend_outer.pack(fill="x", pady=(0,8))
+
+ctk.CTkLabel(legend_outer,
+             text="Zimbabwe VED / MoT Vehicle Classification:",
+             font=ctk.CTkFont(size=11, weight="bold"),
+             text_color="#185FA5").pack(side="left", padx=12, pady=6)
+
+for vclass, vdata in VEHICLE_CLASSES.items():
+    fr = ctk.CTkFrame(legend_outer, fg_color="transparent")
+    fr.pack(side="left", padx=6, pady=4)
+    tk.Label(fr, bg=vdata["color"], text=f" {vdata['label']} ",
+             fg="white", font=("Arial", 9, "bold")).pack(side="left")
+    ctk.CTkLabel(fr, text=vclass, font=ctk.CTkFont(size=10),
+                 text_color="#444").pack(side="left", padx=(3,0))
 
 # ─── TABS ─────────────────────────────────────────────────
 tab_view = ctk.CTkTabview(content, fg_color="white",
@@ -307,22 +342,16 @@ tab_charts = tab_view.add("Charts")
 road_canvas = tk.Canvas(tab_sim, bg="#1a2a3a", highlightthickness=0)
 road_canvas.pack(fill="both", expand=True, padx=12, pady=(8,4))
 
-legend_frame = ctk.CTkFrame(tab_sim, fg_color="transparent")
-legend_frame.pack(anchor="w", padx=12, pady=(0,8))
-for color, lbl in [("#185FA5","Moving"),
-                   ("#E24B4A","Stopped"),
-                   ("#BA7517","Slowing")]:
-    leg = ctk.CTkFrame(legend_frame, fg_color="transparent")
-    leg.pack(side="left", padx=8)
-    tk.Label(leg, bg=color, width=2, height=1).pack(side="left", padx=(0,4))
-    ctk.CTkLabel(leg, text=lbl, font=ctk.CTkFont(size=11),
-                 text_color="#444").pack(side="left")
+direction_label = ctk.CTkLabel(tab_sim,
+    text="← Outbound traffic (right lanes)    |    Inbound traffic (left lanes) →",
+    font=ctk.CTkFont(size=10), text_color="#888")
+direction_label.pack(pady=(0,4))
 
 # ── Tab 2: Road Map ──
-fig_map, ax_map = plt.subplots(figsize=(7, 4))
+fig_map, ax_map = plt.subplots(figsize=(7,4))
 fig_map.patch.set_facecolor("#ffffff")
 ax_map.set_facecolor("#EFF6FF")
-ax_map.set_title("Select a road to see it highlighted on the map",
+ax_map.set_title("Select a road to see it on the map",
                   color="#378ADD", fontsize=10)
 ax_map.axis("off")
 fig_map.tight_layout()
@@ -334,14 +363,15 @@ map_canvas_widget.get_tk_widget().pack(fill="both", expand=True,
 charts_frame = ctk.CTkFrame(tab_charts, fg_color="transparent")
 charts_frame.pack(fill="both", expand=True)
 
-flow_card = ctk.CTkFrame(charts_frame, fg_color="white", corner_radius=12,
+flow_card = ctk.CTkFrame(charts_frame, fg_color="white",
+                          corner_radius=12,
                           border_width=1, border_color="#B5D4F4")
 flow_card.pack(side="left", expand=True, fill="both",
                padx=(8,4), pady=8)
 ctk.CTkLabel(flow_card, text="Vehicle Flow Over Time",
              font=ctk.CTkFont(size=12, weight="bold"),
              text_color="#185FA5").pack(anchor="w", padx=12, pady=(10,0))
-fig1, ax1 = plt.subplots(figsize=(4, 2.8))
+fig1, ax1 = plt.subplots(figsize=(4,2.8))
 fig1.patch.set_facecolor("#ffffff")
 ax1.set_facecolor("#EFF6FF")
 ax1.set_xlabel("Time (s)", fontsize=8, color="#378ADD")
@@ -354,13 +384,15 @@ flow_canvas_chart = FigureCanvasTkAgg(fig1, master=flow_card)
 flow_canvas_chart.get_tk_widget().pack(fill="both", expand=True,
                                         padx=8, pady=(0,8))
 
-sd_card = ctk.CTkFrame(charts_frame, fg_color="white", corner_radius=12,
+sd_card = ctk.CTkFrame(charts_frame, fg_color="white",
+                        corner_radius=12,
                         border_width=1, border_color="#B5D4F4")
-sd_card.pack(side="left", expand=True, fill="both", padx=(4,8), pady=8)
+sd_card.pack(side="left", expand=True, fill="both",
+             padx=(4,8), pady=8)
 ctk.CTkLabel(sd_card, text="Speed vs Density",
              font=ctk.CTkFont(size=12, weight="bold"),
              text_color="#185FA5").pack(anchor="w", padx=12, pady=(10,0))
-fig2, ax2 = plt.subplots(figsize=(4, 2.8))
+fig2, ax2 = plt.subplots(figsize=(4,2.8))
 fig2.patch.set_facecolor("#ffffff")
 ax2.set_facecolor("#EFF6FF")
 ax2.set_xlabel("Density (veh/km)", fontsize=8, color="#378ADD")
@@ -374,13 +406,13 @@ sd_canvas_chart.get_tk_widget().pack(fill="both", expand=True,
                                       padx=8, pady=(0,8))
 
 # ─── DATA STORAGE ─────────────────────────────────────────
-flow_history    = []
-time_history    = []
-density_history = []
-speed_history   = []
-sim_time        = 0
-imported_data   = None
-cars            = []
+flow_history        = []
+time_history        = []
+density_history     = []
+speed_history       = []
+sim_time            = 0
+imported_data       = None
+cars                = []
 simulation_running  = False
 city_graph          = None
 all_road_names      = []
@@ -398,7 +430,7 @@ status_label = ctk.CTkLabel(status_bar,
     font=ctk.CTkFont(size=11), text_color="#B5D4F4")
 status_label.pack(side="left", padx=16, pady=4)
 
-ctk.CTkLabel(status_bar, text="UrbanFlow v1.0",
+ctk.CTkLabel(status_bar, text="UrbanFlow v1.0  |  ZW VED Classification",
              font=ctk.CTkFont(size=11),
              text_color="#B5D4F4").pack(side="right", padx=16, pady=4)
 
@@ -446,8 +478,7 @@ def update_sd_chart():
 def load_city():
     city = city_entry.get().strip()
     if not city:
-        messagebox.showwarning("No City",
-                               "Please enter a city name first.")
+        messagebox.showwarning("No City", "Please enter a city name.")
         return
     city_status_label.configure(
         text="Searching... please wait", text_color="#BA7517")
@@ -486,12 +517,7 @@ def finish_city_load(city):
         values=all_road_names if all_road_names else ["No named roads found"])
     road_var.set("Select a road...")
     load_road_button.configure(state="normal")
-    set_status(f"City loaded — {len(all_road_names)} roads found. "
-               f"Now select a road.")
-    messagebox.showinfo("City Loaded",
-                        f"Found {len(all_road_names)} named roads.\n\n"
-                        f"Use the search box to filter roads,\n"
-                        f"then select one from the dropdown.")
+    set_status(f"City loaded — {len(all_road_names)} roads found.")
 
 def city_load_error(err):
     city_status_label.configure(
@@ -502,8 +528,7 @@ def city_load_error(err):
                          f"Could not find city.\n\n"
                          f"Tips:\n"
                          f"- Be specific: 'Bulawayo, Zimbabwe'\n"
-                         f"- Try: 'Harare, Zimbabwe'\n"
-                         f"- Try: 'Nairobi, Kenya'\n\n"
+                         f"- Try: 'Harare, Zimbabwe'\n\n"
                          f"Error: {err}")
 
 load_city_button.configure(command=load_city)
@@ -525,75 +550,60 @@ road_search_entry.bind("<KeyRelease>", filter_roads)
 # ─── STEP 2: LOAD SELECTED ROAD ───────────────────────────
 def load_selected_road():
     global selected_road_edges, selected_road_name
-    global selected_road_length_km, city_graph
-
+    global selected_road_length_km
     if city_graph is None:
         messagebox.showwarning("No City", "Please load a city first.")
         return
     road_name = road_var.get().strip()
-    if not road_name or road_name in ["Load city first",
-                                       "Select a road...",
-                                       "No match found",
-                                       "No named roads found"]:
+    if road_name in ["Load city first", "Select a road...",
+                     "No match found", "No named roads found"]:
         messagebox.showwarning("No Road", "Please select a valid road.")
         return
-
     road_status_label.configure(
         text="Loading road...", text_color="#BA7517")
     load_road_button.configure(state="disabled")
     set_status(f"Loading {road_name}...")
 
     def fetch():
-        global selected_road_edges, selected_road_name
-        global selected_road_length_km
         try:
             edges = ox.graph_to_gdfs(city_graph, nodes=False)
-            # Filter edges matching this road name
+
             def matches(n):
-                if isinstance(n, list):
-                    return road_name in n
+                if isinstance(n, list): return road_name in n
                 return n == road_name
+
             mask = edges["name"].apply(
                 lambda n: matches(n) if pd.notna(n) else False)
             road_edges = edges[mask]
-
             if road_edges.empty:
                 app.after(0, lambda: road_load_error(
                     "No edges found for this road."))
                 return
-
-            # Calculate road length
-            length_m = road_edges["length"].sum() \
-                       if "length" in road_edges.columns else 0
-            length_km = round(length_m / 1000, 2)
-
-            # Get speed limit
+            length_km = round(
+                road_edges["length"].sum() / 1000, 2) \
+                if "length" in road_edges.columns else 0
             speed_limit = 50
             if "maxspeed" in road_edges.columns:
-                speeds = []
+                spds = []
                 for s in road_edges["maxspeed"].dropna():
                     try:
                         if isinstance(s, list): s = s[0]
-                        speeds.append(int(str(s).split()[0]))
-                    except:
-                        pass
-                if speeds:
-                    speed_limit = int(sum(speeds) / len(speeds))
-
-            # Get lanes
+                        spds.append(int(str(s).split()[0]))
+                    except: pass
+                if spds:
+                    speed_limit = int(sum(spds)/len(spds))
             lanes = 2
             if "lanes" in road_edges.columns:
-                lane_vals = []
+                lv = []
                 for l in road_edges["lanes"].dropna():
                     try:
                         if isinstance(l, list): l = l[0]
-                        lane_vals.append(int(l))
-                    except:
-                        pass
-                if lane_vals:
-                    lanes = int(sum(lane_vals) / len(lane_vals))
-                    lanes = max(1, min(6, lanes))
-
+                        lv.append(int(l))
+                    except: pass
+                if lv:
+                    lanes = max(2, min(6, int(sum(lv)/len(lv))))
+                    if lanes % 2 != 0:
+                        lanes += 1
             app.after(0, lambda: finish_road_load(
                 road_edges, road_name, length_km, speed_limit, lanes))
         except Exception as e:
@@ -607,53 +617,42 @@ def finish_road_load(road_edges, name, length_km, speed_limit, lanes):
     selected_road_edges     = road_edges
     selected_road_name      = name
     selected_road_length_km = length_km
-
     road_status_label.configure(
         text=f"Loaded: {name} ({length_km} km)",
         text_color="#0F6E56")
     load_road_button.configure(state="normal")
-
-    # Auto-fill parameters from real data
     speed_slider.set(min(120, max(20, speed_limit)))
     update_speed(speed_limit)
     lanes_var.set(str(lanes))
     road_info_label.configure(
-        text=f"Selected road: {name}  |  "
-             f"Length: {length_km} km  |  "
-             f"Lanes: {lanes}  |  "
-             f"Speed limit: {speed_limit} km/h")
+        text=f"Road: {name}  |  Length: {length_km} km  |  "
+             f"Lanes: {lanes}  |  Speed limit: {speed_limit} km/h")
 
-    # Draw road on map — highlighted
+    # Draw map
     ax_map.clear()
     ax_map.set_facecolor("#1a2a3a")
     fig_map.patch.set_facecolor("#1a2a3a")
-
-    # Draw full city network faintly
     all_edges = ox.graph_to_gdfs(city_graph, nodes=False)
     all_edges.plot(ax=ax_map, color="#2a3f55",
                    linewidth=0.4, alpha=0.5)
-
-    # Highlight selected road in bright blue
     road_edges.plot(ax=ax_map, color="#378ADD",
                     linewidth=3, alpha=1.0)
-
-    ax_map.set_title(f"{name}  —  {city_entry.get().strip()}",
-                      color="white", fontsize=11)
+    ax_map.set_title(
+        f"{name}  —  {city_entry.get().strip()}",
+        color="white", fontsize=11)
     ax_map.axis("off")
     fig_map.tight_layout()
     map_canvas_widget.draw()
-
     tab_view.set("Road Map")
-    set_status(f"Road loaded: {name} | "
-               f"{length_km} km | {lanes} lanes | "
-               f"{speed_limit} km/h speed limit")
+    set_status(f"Road loaded: {name} | {length_km} km | "
+               f"{lanes} lanes | {speed_limit} km/h")
     messagebox.showinfo("Road Loaded",
                         f"Road: {name}\n"
                         f"Length: {length_km} km\n"
-                        f"Lanes: {lanes}\n"
+                        f"Lanes: {lanes} (bidirectional)\n"
                         f"Speed limit: {speed_limit} km/h\n\n"
-                        f"Parameters auto-filled from real data.\n"
-                        f"Click Run Simulation to begin!")
+                        f"Parameters auto-filled.\n"
+                        f"Click Run Simulation!")
 
 def road_load_error(err):
     road_status_label.configure(
@@ -666,42 +665,39 @@ load_road_button.configure(command=load_selected_road)
 # ─── CSV IMPORT ───────────────────────────────────────────
 def import_data():
     global imported_data
-    file_path = filedialog.askopenfilename(
+    fp = filedialog.askopenfilename(
         title="Select Traffic Data File",
-        filetypes=[("CSV files", "*.csv"),
-                   ("Excel files", "*.xlsx *.xls"),
-                   ("All files", "*.*")])
-    if not file_path:
-        return
+        filetypes=[("CSV files","*.csv"),
+                   ("Excel files","*.xlsx *.xls"),
+                   ("All files","*.*")])
+    if not fp: return
     try:
-        df = pd.read_csv(file_path) \
-             if file_path.endswith(".csv") else pd.read_excel(file_path)
+        df = pd.read_csv(fp) if fp.endswith(".csv") \
+             else pd.read_excel(fp)
         df.columns = [c.strip().lower() for c in df.columns]
-        speed_col   = next(
-            (c for c in df.columns if "speed" in c), None)
-        density_col = next(
-            (c for c in df.columns
-             if "density" in c or "volume" in c or "flow" in c), None)
-        if speed_col and density_col:
+        sc = next((c for c in df.columns if "speed"   in c), None)
+        dc = next((c for c in df.columns
+                   if "density" in c or "volume" in c
+                   or "flow" in c), None)
+        if sc and dc:
             imported_data = df
-            speeds    = df[speed_col].dropna().tolist()
-            densities = df[density_col].dropna().tolist()
-            avg_spd   = sum(speeds) / len(speeds)
-            speed_slider.set(min(120, max(20, avg_spd)))
-            update_speed(avg_spd)
-            density_history.clear()
-            speed_history.clear()
-            for s, d in zip(speeds[:50], densities[:50]):
+            spds  = df[sc].dropna().tolist()
+            dens  = df[dc].dropna().tolist()
+            avg_s = sum(spds)/len(spds)
+            speed_slider.set(min(120, max(20, avg_s)))
+            update_speed(avg_s)
+            density_history.clear(); speed_history.clear()
+            for s, d in zip(spds[:50], dens[:50]):
                 speed_history.append(round(float(s), 2))
                 density_history.append(round(float(d), 2))
             update_sd_chart()
             data_status_label.configure(
-                text=f"Loaded: {len(df)} rows", text_color="#0F6E56")
-            set_status(f"Data imported — {len(df)} rows loaded.")
-            messagebox.showinfo("Data Imported",
+                text=f"Loaded: {len(df)} rows",
+                text_color="#0F6E56")
+            set_status(f"Data imported — {len(df)} rows.")
+            messagebox.showinfo("Imported",
                                 f"Loaded {len(df)} rows.\n"
-                                f"Speed: '{speed_col}'\n"
-                                f"Density: '{density_col}'")
+                                f"Speed: '{sc}'\nDensity: '{dc}'")
         else:
             imported_data = df
             data_status_label.configure(
@@ -712,8 +708,7 @@ def import_data():
                                    f"Columns: {list(df.columns)}\n\n"
                                    f"Name columns 'speed' and 'density'.")
     except Exception as e:
-        messagebox.showerror("Import Error",
-                             f"Could not read file:\n{str(e)}")
+        messagebox.showerror("Import Error", str(e))
 
 upload_button.configure(command=import_data)
 
@@ -724,21 +719,20 @@ def export_csv():
         return
     fp = filedialog.asksaveasfilename(
         defaultextension=".csv",
-        filetypes=[("CSV files", "*.csv")])
-    if not fp:
-        return
+        filetypes=[("CSV files","*.csv")])
+    if not fp: return
     try:
         pd.DataFrame({
             "time_s":       time_history,
             "vehicle_flow": flow_history,
             "density":      density_history
-                            if len(density_history) == len(time_history)
+                            if len(density_history)==len(time_history)
                             else [None]*len(time_history),
             "avg_speed":    speed_history
-                            if len(speed_history) == len(time_history)
+                            if len(speed_history)==len(time_history)
                             else [None]*len(time_history),
         }).to_csv(fp, index=False)
-        set_status(f"CSV saved to {fp}")
+        set_status(f"CSV saved.")
         messagebox.showinfo("Exported", f"Saved to:\n{fp}")
     except Exception as e:
         messagebox.showerror("Error", str(e))
@@ -752,25 +746,27 @@ def export_pdf():
         return
     fp = filedialog.asksaveasfilename(
         defaultextension=".pdf",
-        filetypes=[("PDF files", "*.pdf")])
-    if not fp:
-        return
+        filetypes=[("PDF files","*.pdf")])
+    if not fp: return
     try:
         from matplotlib.backends.backend_pdf import PdfPages
-        speeds   = [c["speed"] for c in cars] if cars else [0]
-        avg_spd  = round(sum(speeds)/len(speeds), 1)
-        flow_val = int(len(cars)*avg_spd*0.8) if cars else 0
-        cong     = round(max(0, 1-(avg_spd/speed_slider.get())), 2)
+        spds    = [c["speed"] for c in cars] if cars else [0]
+        avg_spd = round(sum(spds)/len(spds), 1)
+        flow_v  = int(len(cars)*avg_spd*0.8) if cars else 0
+        cong    = round(max(0,1-(avg_spd/speed_slider.get())), 2)
+        counts  = {}
+        for c in cars:
+            counts[c["vclass"]] = counts.get(c["vclass"], 0) + 1
 
         with PdfPages(fp) as pdf:
             # Page 1 — Summary
-            fs, axs = plt.subplots(figsize=(8.27, 11.69))
+            fs, axs = plt.subplots(figsize=(8.27,11.69))
             axs.axis("off")
             fs.patch.set_facecolor("white")
             axs.add_patch(plt.Rectangle(
-                (0, 0.92), 1, 0.08,
+                (0,0.92),1,0.08,
                 transform=axs.transAxes, color="#185FA5"))
-            axs.text(0.05, 0.96,
+            axs.text(0.05,0.96,
                      "UrbanFlow — Traffic Simulation Report",
                      transform=axs.transAxes,
                      fontsize=15, fontweight="bold",
@@ -782,7 +778,7 @@ def export_pdf():
                 ("Lanes",        lanes_var.get()),
                 ("Speed Limit",  f"{int(speed_slider.get())} km/h"),
                 ("Avg Speed",    f"{avg_spd} km/h"),
-                ("Vehicle Flow", f"{flow_val} veh/hr"),
+                ("Vehicle Flow", f"{flow_v} veh/hr"),
                 ("Congestion",   str(cong)),
             ]
             y = 0.85
@@ -790,144 +786,247 @@ def export_pdf():
                 axs.text(0.05, y, k,  transform=axs.transAxes,
                          fontsize=11, color="#378ADD")
                 axs.text(0.45, y, v,  transform=axs.transAxes,
-                         fontsize=11, color="#042C53", fontweight="bold")
-                y -= 0.06
+                         fontsize=11, color="#042C53",
+                         fontweight="bold")
+                y -= 0.05
+
+            # Vehicle breakdown
+            axs.text(0.05, y-0.01,
+                     "Vehicle Breakdown (ZW VED Classification):",
+                     transform=axs.transAxes,
+                     fontsize=11, color="#185FA5", fontweight="bold")
+            y -= 0.06
+            for vc, cnt in counts.items():
+                pct = round(cnt/len(cars)*100,1) if cars else 0
+                axs.text(0.05, y, vc,
+                         transform=axs.transAxes,
+                         fontsize=10, color="#378ADD")
+                axs.text(0.45, y, f"{cnt} vehicles ({pct}%)",
+                         transform=axs.transAxes,
+                         fontsize=10, color="#042C53",
+                         fontweight="bold")
+                y -= 0.04
+
             if selected_road_edges is not None:
-                ax_mini = fs.add_axes([0.05, 0.1, 0.9, 0.38])
+                ax_mini = fs.add_axes([0.05,0.05,0.9,0.3])
                 ax_mini.set_facecolor("#1a2a3a")
                 all_e = ox.graph_to_gdfs(city_graph, nodes=False)
                 all_e.plot(ax=ax_mini, color="#2a3f55",
                            linewidth=0.3, alpha=0.5)
-                selected_road_edges.plot(ax=ax_mini, color="#378ADD",
-                                          linewidth=2.5)
+                selected_road_edges.plot(
+                    ax=ax_mini, color="#378ADD", linewidth=2.5)
                 ax_mini.set_title(
-                    f"{selected_road_name} — "
-                    f"{city_entry.get()}",
+                    f"{selected_road_name} — {city_entry.get()}",
                     color="#185FA5", fontsize=9)
                 ax_mini.axis("off")
-            pdf.savefig(fs)
-            plt.close(fs)
+            pdf.savefig(fs); plt.close(fs)
 
-            # Page 2 — Charts
-            fc, (c1, c2) = plt.subplots(1, 2, figsize=(11.69, 4))
-            fc.patch.set_facecolor("white")
-            c1.plot(time_history, flow_history,
-                    color="#185FA5", linewidth=1.5)
-            c1.fill_between(time_history, flow_history,
-                             alpha=0.2, color="#378ADD")
-            c1.set_title("Vehicle Flow Over Time", color="#185FA5")
-            c1.set_xlabel("Time (s)",      color="#378ADD")
-            c1.set_ylabel("Vehicles/hour", color="#378ADD")
-            c1.set_facecolor("#EFF6FF")
-            dr = np.linspace(0, 100, 100)
-            c2.plot(dr, speed_slider.get()*(1-dr/100),
-                    color="#B5D4F4", linestyle="--", label="Theoretical")
+            # Page 2 — Vehicle pie chart + flow chart
+            fp2, (ca0, ca1) = plt.subplots(1,2,figsize=(11.69,4))
+            fp2.patch.set_facecolor("white")
+            if counts:
+                colors_pie = [VEHICLE_CLASSES[v]["color"]
+                              for v in counts.keys()]
+                ca0.pie(counts.values(), labels=counts.keys(),
+                        colors=colors_pie, autopct="%1.0f%%",
+                        textprops={"fontsize":8})
+                ca0.set_title("Vehicle Mix (VED Classification)",
+                               color="#185FA5")
+            ca1.plot(time_history, flow_history,
+                     color="#185FA5", linewidth=1.5)
+            ca1.fill_between(time_history, flow_history,
+                              alpha=0.2, color="#378ADD")
+            ca1.set_title("Vehicle Flow Over Time", color="#185FA5")
+            ca1.set_xlabel("Time (s)",      color="#378ADD")
+            ca1.set_ylabel("Vehicles/hour", color="#378ADD")
+            ca1.set_facecolor("#EFF6FF")
+            fp2.tight_layout()
+            pdf.savefig(fp2); plt.close(fp2)
+
+            # Page 3 — Speed vs Density
+            fp3, ca2 = plt.subplots(figsize=(8,4))
+            fp3.patch.set_facecolor("white")
+            dr = np.linspace(0,100,100)
+            ca2.plot(dr, speed_slider.get()*(1-dr/100),
+                     color="#B5D4F4", linestyle="--",
+                     label="Theoretical")
             if density_history:
-                c2.scatter(density_history, speed_history,
-                           color="#185FA5", s=10, alpha=0.6,
-                           label="Simulated")
-                c2.legend(fontsize=8)
-            c2.set_title("Speed vs Density",  color="#185FA5")
-            c2.set_xlabel("Density (veh/km)", color="#378ADD")
-            c2.set_ylabel("Speed (km/h)",     color="#378ADD")
-            c2.set_facecolor("#EFF6FF")
-            fc.tight_layout()
-            pdf.savefig(fc)
-            plt.close(fc)
+                ca2.scatter(density_history, speed_history,
+                            color="#185FA5", s=10, alpha=0.6,
+                            label="Simulated")
+                ca2.legend(fontsize=8)
+            ca2.set_title("Speed vs Density", color="#185FA5")
+            ca2.set_xlabel("Density (veh/km)", color="#378ADD")
+            ca2.set_ylabel("Speed (km/h)",     color="#378ADD")
+            ca2.set_facecolor("#EFF6FF")
+            fp3.tight_layout()
+            pdf.savefig(fp3); plt.close(fp3)
 
-        set_status(f"PDF saved to {fp}")
+        set_status("PDF report saved.")
         messagebox.showinfo("Exported", f"PDF saved to:\n{fp}")
     except Exception as e:
         messagebox.showerror("Error", str(e))
 
 export_pdf_button.configure(command=export_pdf)
 
-# ─── ROAD DRAWING ─────────────────────────────────────────
+# ─── DRAW ROAD ────────────────────────────────────────────
 def draw_road():
     road_canvas.delete("all")
-    w           = road_canvas.winfo_width()  or 900
-    h           = road_canvas.winfo_height() or 200
-    num_lanes   = int(lanes_var.get())
-    lane_height = h // num_lanes
+    w         = road_canvas.winfo_width()  or 900
+    h         = road_canvas.winfo_height() or 220
+    num_lanes = int(lanes_var.get())
+    half      = num_lanes // 2
+    lh        = h // num_lanes
+
+    # Draw centre line (divides inbound / outbound)
+    mid_y = h // 2
+    road_canvas.create_line(0, mid_y, w, mid_y,
+                             fill="yellow", width=2, dash=(12,6))
+
+    # Draw lane dividers
     for i in range(1, num_lanes):
-        y = i * lane_height
+        if i == half: continue   # skip — already drawn as centre line
+        y = i * lh
         for x in range(0, w, 30):
-            road_canvas.create_line(
-                x, y, x+15, y,
-                fill="#ffffb3", width=1, dash=(8,6))
+            road_canvas.create_line(x, y, x+15, y,
+                                     fill="#ffffb3", width=1,
+                                     dash=(8,6))
+
+    # Direction arrows
+    road_canvas.create_text(60, mid_y//2,
+        text="→ OUTBOUND", fill="#aaaaff",
+        font=("Arial",8,"bold"))
+    road_canvas.create_text(60, mid_y + mid_y//2,
+        text="← INBOUND", fill="#ffaaaa",
+        font=("Arial",8,"bold"))
+
     # Road name overlay
     if selected_road_name:
         road_canvas.create_text(
-            w//2, 14,
-            text=f"Simulating: {selected_road_name}  "
-                 f"({selected_road_length_km} km)",
-            fill="white", font=("Arial", 10))
+            w//2, 12,
+            text=f"{selected_road_name}  ({selected_road_length_km} km)",
+            fill="white", font=("Arial",10,"bold"))
+
+    # Draw cars
     for car in cars:
-        x, lane, speed = car["x"], car["lane"], car["speed"]
-        y     = int((lane + 0.5) * lane_height)
-        color = "#E24B4A" if speed < 10 else \
-                "#BA7517" if speed < 30 else "#185FA5"
+        x     = car["x"]
+        lane  = car["lane"]
+        speed = car["speed"]
+        vdata = VEHICLE_CLASSES[car["vclass"]]
+        cw    = vdata["width"]
+        ch    = vdata["height"]
+        lbl   = vdata["label"]
+        color = vdata["color"]
+
+        # Dim if slow
+        if speed < 5:
+            color = "#555555"
+
+        y = int((lane + 0.5) * lh)
         road_canvas.create_rectangle(
-            x, y-8, x+26, y+8,
+            x, y-ch//2, x+cw, y+ch//2,
             fill=color, outline="white", width=1)
+        road_canvas.create_text(
+            x + cw//2, y,
+            text=lbl, fill="white",
+            font=("Arial", 7, "bold"))
+
+# ─── VEHICLE SPAWNING ─────────────────────────────────────
+def spawn_vehicle(lane, w, speed_limit, half):
+    vclass = random.choices(
+        list(VEHICLE_DISTRIBUTION.keys()),
+        weights=list(VEHICLE_DISTRIBUTION.values()))[0]
+    vdata  = VEHICLE_CLASSES[vclass]
+    # Outbound lanes (0 to half-1) → move right (+x)
+    # Inbound  lanes (half to end) → move left  (-x)
+    direction = 1 if lane < half else -1
+    start_x   = random.randint(0, w) if True else (0 if direction==1 else w)
+    max_spd   = speed_limit * vdata["max_speed_factor"]
+    return {
+        "x":         start_x,
+        "lane":      lane,
+        "speed":     random.uniform(max_spd*0.3, max_spd),
+        "vclass":    vclass,
+        "direction": direction,
+    }
 
 # ─── SIMULATION LOOP ──────────────────────────────────────
 def move_cars():
     global sim_time
     if not simulation_running:
         return
-    w           = road_canvas.winfo_width() or 900
-    speed_limit = speed_slider.get()
+    w         = road_canvas.winfo_width()  or 900
+    h         = road_canvas.winfo_height() or 220
+    num_lanes = int(lanes_var.get())
+    half      = num_lanes // 2
+    lh        = h // num_lanes
+    speed_lim = speed_slider.get()
+
     for car in cars:
+        d     = car["direction"]
+        vdata = VEHICLE_CLASSES[car["vclass"]]
+        max_s = speed_lim * vdata["max_speed_factor"]
+
+        # Cars ahead in same lane and same direction
         ahead = [c for c in cars
-                 if c["lane"] == car["lane"] and c["x"] > car["x"]]
+                 if c["lane"] == car["lane"]
+                 and c["direction"] == d
+                 and (c["x"] - car["x"]) * d > 0]
+
         if ahead:
-            nearest = min(ahead, key=lambda c: c["x"])
-            gap     = nearest["x"] - car["x"]
-            if gap < 40:
-                car["speed"] = max(0, car["speed"] - 5)
-            elif gap < 80:
-                car["speed"] = min(speed_limit*0.6, car["speed"]+2)
+            nearest = min(ahead,
+                          key=lambda c: abs(c["x"] - car["x"]))
+            gap = abs(nearest["x"] - car["x"])
+            vw  = VEHICLE_CLASSES[nearest["vclass"]]["width"]
+            if gap < vw + 10:
+                car["speed"] = max(0, car["speed"] - 6)
+            elif gap < vw + 50:
+                car["speed"] = min(max_s*0.6, car["speed"]+2)
             else:
-                car["speed"] = min(speed_limit, car["speed"]+3)
+                car["speed"] = min(max_s, car["speed"]+3)
         else:
-            car["speed"] = min(speed_limit, car["speed"]+3)
-        car["x"] += car["speed"] * 0.05
-        if car["x"] > w + 30:
-            car["x"]     = random.randint(-100, -30)
-            car["speed"] = random.uniform(speed_limit*0.3, speed_limit)
+            car["speed"] = min(max_s, car["speed"]+3)
+
+        car["x"] += car["speed"] * 0.05 * d
+
+        # Wrap around
+        if d == 1 and car["x"] > w + 60:
+            car["x"]     = random.randint(-80, -20)
+            car["speed"] = random.uniform(max_s*0.3, max_s)
+        elif d == -1 and car["x"] < -60:
+            car["x"]     = random.randint(w+20, w+80)
+            car["speed"] = random.uniform(max_s*0.3, max_s)
+
     draw_road()
     update_metrics()
     sim_time += 1
     if sim_time % 20 == 0:
-        speeds  = [c["speed"] for c in cars]
-        avg_spd = sum(speeds)/len(speeds) if speeds else 0
+        spds    = [c["speed"] for c in cars]
+        avg_spd = sum(spds)/len(spds) if spds else 0
         flow    = int(len(cars)*avg_spd*0.8)
-        density = len(cars)/(road_canvas.winfo_width()/10)
+        density = len(cars)/(w/10)
         flow_history.append(flow)
         time_history.append(sim_time)
         if imported_data is None:
-            density_history.append(round(density, 2))
-            speed_history.append(round(avg_spd, 2))
+            density_history.append(round(density,2))
+            speed_history.append(round(avg_spd,2))
         if len(flow_history) > 30:
-            flow_history.pop(0)
-            time_history.pop(0)
+            flow_history.pop(0); time_history.pop(0)
             if imported_data is None:
-                density_history.pop(0)
-                speed_history.pop(0)
+                density_history.pop(0); speed_history.pop(0)
         update_flow_chart()
         update_sd_chart()
     app.after(50, move_cars)
 
+# ─── METRICS ──────────────────────────────────────────────
 def update_metrics():
-    if not cars:
-        return
-    speeds     = [c["speed"] for c in cars]
-    avg_speed  = sum(speeds)/len(speeds)
+    if not cars: return
+    spds       = [c["speed"] for c in cars]
+    avg_speed  = sum(spds)/len(spds)
     flow       = int(len(cars)*avg_speed*0.8)
-    congestion = round(max(0, 1-(avg_speed/speed_slider.get())), 2)
+    congestion = round(max(0,1-(avg_speed/speed_slider.get())),2)
     stopped    = [c for c in cars if c["speed"] < 5]
-    jam_km     = round(len(stopped)*0.05, 1)
+    jam_km     = round(len(stopped)*0.05,1)
     avg_speed_label.configure(text=f"{int(avg_speed)} km/h")
     flow_label.configure(text=str(flow))
     congestion_label.configure(text=str(congestion))
@@ -939,22 +1038,18 @@ def run_simulation():
     simulation_running = True
     sim_time = 0
     cars.clear()
-    flow_history.clear()
-    time_history.clear()
+    flow_history.clear(); time_history.clear()
     if imported_data is None:
-        density_history.clear()
-        speed_history.clear()
-    num_lanes   = int(lanes_var.get())
-    density     = density_slider.get()/100
-    speed_limit = speed_slider.get()
-    num_cars    = int(30*density*num_lanes)
-    w           = road_canvas.winfo_width() or 900
+        density_history.clear(); speed_history.clear()
+    num_lanes = int(lanes_var.get())
+    half      = num_lanes // 2
+    density   = density_slider.get()/100
+    spd_lim   = speed_slider.get()
+    num_cars  = int(30 * density * num_lanes)
+    w         = road_canvas.winfo_width() or 900
     for i in range(num_cars):
-        cars.append({
-            "x":     random.randint(0, w),
-            "lane":  random.randint(0, num_lanes-1),
-            "speed": random.uniform(speed_limit*0.3, speed_limit)
-        })
+        lane = random.randint(0, num_lanes-1)
+        cars.append(spawn_vehicle(lane, w, spd_lim, half))
     tab_view.set("Road Simulation")
     draw_road()
     move_cars()
@@ -973,10 +1068,8 @@ def reset_all():
     simulation_running      = False
     sim_time                = 0
     cars.clear()
-    flow_history.clear()
-    time_history.clear()
-    density_history.clear()
-    speed_history.clear()
+    flow_history.clear();    time_history.clear()
+    density_history.clear(); speed_history.clear()
     imported_data           = None
     city_graph              = None
     all_road_names          = []
@@ -1000,20 +1093,15 @@ def reset_all():
                              state="disabled")
     road_var.set("Load city first")
     load_road_button.configure(state="disabled")
-    speed_slider.set(60)
-    density_slider.set(65)
+    speed_slider.set(60);   density_slider.set(65)
     time_slider.set(30)
-    update_speed(60)
-    update_density(65)
-    update_time(30)
+    update_speed(60);       update_density(65);    update_time(30)
     ax_map.clear()
-    ax_map.set_title(
-        "Select a road to see it highlighted on the map",
-        color="#378ADD", fontsize=10)
+    ax_map.set_title("Select a road to see it on the map",
+                      color="#378ADD", fontsize=10)
     ax_map.axis("off")
     map_canvas_widget.draw()
-    update_flow_chart()
-    update_sd_chart()
+    update_flow_chart(); update_sd_chart()
     set_status("Reset complete — ready for new simulation.")
 
 run_button.configure(command=run_simulation)
